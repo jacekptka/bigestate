@@ -1,13 +1,39 @@
 from bs4 import BeautifulSoup
 import requests
 
-r = requests.get("https://gratka.pl/nieruchomosci/mieszkania/krakow")
-soup = BeautifulSoup(r.content)
+r = requests.get("https://gratka.pl/nieruchomosci/mieszkania/krakow?page=1")
+soup = BeautifulSoup(r.content,"html.parser")
 
 
-#with open("https://www.jetbrains.com/help/pycharm/installing-uninstalling-and-upgrading-packages.html") as fp:
-#    soup = BeautifulSoup(fp)
+# get pagination
+max_pages = soup.find("input", {"aria-label":"Numer strony wyników"})['max']
+print(max_pages)
 
-#soup = BeautifulSoup("<html>data</html>", "html.parser")
-type(soup)
-print(soup)
+#check if primary market
+foundPrimaryMarket = soup.find("span", {"class":"teaser__primaryMarket"})
+isPrimaryMarket = 0
+if foundPrimaryMarket:
+    isPrimaryMarket += 1
+else:
+    isPrimaryMarket += 0
+
+#get city district
+title = soup.find("a", {"class":"teaser__anchor"})['title'].split(' ')
+for i in [i for i,x in enumerate(title) if x == 'Kraków']:
+    print(title[i+1].strip(','))
+
+
+
+
+
+#print(soup)
+
+#gotowy loop
+#for request in range(1, int(max_pages)+1):
+#    page = requests.get("https://gratka.pl/nieruchomosci/mieszkania/krakow?page="+max_pages)
+    #get whutcha want here
+    #store it in dynamoDB
+#    print(request)
+
+
+
