@@ -29,7 +29,7 @@ def crawl_for_articles():
 
     for page in range(1, int(get_max_pages.max_pages)):
 
-        url2parse_current = "https://gratka.pl/nieruchomosci/mieszkania/" + city + "?page="+str(page)
+        url2parse_current = "https://gratka.pl/nieruchomosci/mieszkania/" + city + "/sprzedaz?page="+str(page)
         r = requests.get(url2parse_current)
         soup = BeautifulSoup(r.content, "html.parser")
 
@@ -48,28 +48,49 @@ def crawl_for_articles():
             #params_from_teaser.append(teaser_location)
             params_from_teaser.append(teaser_region)
 
+            #sprawdź czy rynek pierwotny
+            foundPrimaryMarket = soup.find("span", {"class": "teaser__primaryMarket"})
+            isPrimaryMarket = ""
+            if foundPrimaryMarket:
+                isPrimaryMarket += "tak"
+            else:
+                isPrimaryMarket += "nie"
+
+            params_from_teaser.append("Rynek Pierwotny: "+isPrimaryMarket)
+
+            #dzielnica
+            district = ""
+            title = soup.find("a", {"class": "teaser__anchor"})['title'].split(' ')
+            for i in [i for i, x in enumerate(title) if x == citypl]:
+                if title.index(citypl)+1 < len(title):
+                    district = title[i + 1]
+                    if district == 'Stare':
+                        district = "Stare Miasto"
+                    if district == 'Nowa':
+                        district = "Nowa Huta"
+                else:
+                    district = "brak"
+                #if title[i + 1] != 0:
+                 #   district = title[i + 1].strip(',')
+                #else:
+                 #   district = "brak"
+
+            params_from_teaser.append("Dzielnica: " + str(district.strip(',')))
+
             f.write(str(params_from_teaser)+"\n")
-            #print(teaser_params)
 
 crawl_for_articles()
 
 f.close()
 
-#check if primary market
-def check_if_primo():
-    foundPrimaryMarket = articles.find("span", {"class":"teaser__primaryMarket"})
-    isPrimaryMarket = 0
-    if foundPrimaryMarket:
-        isPrimaryMarket += 1
-    else:
-        isPrimaryMarket += 0
-    return isPrimaryMarket
 
 #get city district
 def get_district():
     title = soup.find("a", {"class":"teaser__anchor"})['title'].split(' ')
     for i in [i for i,x in enumerate(title) if x == citypl]:
         return title[i+1].strip(',')
+
+
 
 
 
