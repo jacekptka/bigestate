@@ -1,3 +1,7 @@
+import random
+import string
+
+import boto3
 import os
 import time
 from bs4 import BeautifulSoup
@@ -10,10 +14,15 @@ url2parse = "https://gratka.pl/nieruchomosci/mieszkania/" + city + "?page=1"
 r = requests.get(url2parse)
 soup = BeautifulSoup(r.content,"html.parser")
 
-mydir = 'D:'
-myfile = 'big_bunch_of_immos'
-target = os.path.join(mydir, myfile)
-f = open(target ,"w+", encoding="utf-8")
+
+
+session = boto3.Session(profile_name='awseducate')
+#s3_content_type = os.environ.get('S3_CONTENT_TYPE', 'text/plain')
+s3_bucket_name = "jpi-bigestate"
+
+s3 = session.resource('s3')
+s3_bucket = s3.Bucket(s3_bucket_name)
+
 
 # get pagination
 def get_max_pages():
@@ -77,11 +86,19 @@ def crawl_for_articles():
 
             params_from_teaser.append("Dzielnica: " + str(district.strip(',')))
 
-            f.write(str(params_from_teaser)+"\n")
+            #f.write(str(params_from_teaser)+"\n")
+
+
+            body = str(params_from_teaser)
+            object_name = 'estates_'+city+'_'+str(page)+'_'+str(article)+'.json'
+            s3.Bucket(s3_bucket_name).put_object(Key=object_name, Body=body, ContentType='text/plain')
+
 
 crawl_for_articles()
 
-f.close()
+
+
+#f.close()
 
 
 #get city district
