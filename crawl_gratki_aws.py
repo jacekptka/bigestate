@@ -16,7 +16,7 @@ soup = BeautifulSoup(r.content,"html.parser")
 
 
 
-session = boto3.Session(profile_name='awseducate')
+session = boto3.Session(profile_name='default')
 #s3_content_type = os.environ.get('S3_CONTENT_TYPE', 'text/plain')
 s3_bucket_name = "jpi-bigestate"
 
@@ -42,20 +42,23 @@ def crawl_for_articles():
         r = requests.get(url2parse_current)
         soup = BeautifulSoup(r.content, "html.parser")
 
-        #time.sleep(5)
-
         for article in range (0, get_max_articles.max_articles):
 
             teaser_params = soup.find_all('ul', class_='teaser__params')[article]
-            teaser_price = 'Cena: ' + str(soup.find(attrs={'class' : 'teaser__price'}).contents[0].strip())
-            teaser_anchor = 'Tytuł: ' + soup.find('a', class_='teaser__anchor').contents[0].strip()
+            teaser_price = 'Cena: ' + soup.find_all('p', class_='teaser__price')[article].contents[0].strip().replace(" ","")
+            teaser_anchor = 'Tytuł: ' + soup.find_all('a', class_='teaser__anchor')[article].contents[0].strip().replace(",","")
             #teaser_location = 'Miasto: ' + soup.find('h3', class_='teaser__location').contents[0].strip().strip(',').strip('\\n')
-            teaser_region = 'Województwo: ' + soup.find('span', class_='teaser__region').contents[0]
-            params_from_teaser = [li.text.strip() for li in teaser_params.find_all('li')]
+            #teaser_region = 'Województwo: ' + soup.find('span', class_='teaser__region').contents[0]
+            striped_teaser_params = [li.text.strip() for li in teaser_params.find_all('li')]
+            if striped_teaser_params[0].startswith("O"):
+                params_from_teaser = striped_teaser_params[1:4]
+            else:
+                params_from_teaser = striped_teaser_params[:3]
+
             params_from_teaser.append(teaser_price)
             params_from_teaser.append(teaser_anchor)
             #params_from_teaser.append(teaser_location)
-            params_from_teaser.append(teaser_region)
+            #params_from_teaser.append(teaser_region)
 
             #sprawdź czy rynek pierwotny
             foundPrimaryMarket = soup.find("span", {"class": "teaser__primaryMarket"})
@@ -86,10 +89,19 @@ def crawl_for_articles():
 
             params_from_teaser.append("Dzielnica: " + str(district.strip(',')))
 
-            #f.write(str(params_from_teaser)+"\n")
+            keys = []
+            values =[]
+            for i in params_from_teaser:
 
+                ention = i.split(":")
+                keys.append(ention[0])
+                values.append(ention[1])
 
-            body = str(params_from_teaser)
+            estate = str(keys)+'\n'+str(values)
+            body = estate.replace("'","").replace("[","").replace("]","")
+
+            #print(body)
+
             object_name = 'estates_'+city+'_'+str(page)+'_'+str(article)+'.json'
             s3.Bucket(s3_bucket_name).put_object(Key=object_name, Body=body, ContentType='text/plain')
 

@@ -11,7 +11,7 @@ r = requests.get(url2parse)
 soup = BeautifulSoup(r.content,"html.parser")
 
 mydir = 'D:'
-myfile = 'big_bunch_of_immos'
+myfile = 'big_bunch_of_immos1'
 target = os.path.join(mydir, myfile)
 f = open(target ,"w+", encoding="utf-8")
 
