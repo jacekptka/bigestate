@@ -39,7 +39,7 @@ def crawl_for_articles():
     crawl_for_articles.header = ""
 
     #for page in range(1, int(get_max_pages.max_pages)):
-    for page in range(1, 2):
+    for page in range(1, 10):
 
         url2parse_current = "https://gratka.pl/nieruchomosci/mieszkania/" + city + "/sprzedaz?page="+str(page)
         r = requests.get(url2parse_current)
@@ -112,9 +112,9 @@ crawl_for_articles()
 
 body = crawl_for_articles.header + crawl_for_articles.estates
 
-print(body)
-#object_name = 'estates_' + city + '.txt'
-#s3.Bucket(s3_bucket_name).put_object(Key=object_name, Body=body, ContentType='text/plain')
+#print(body)
+object_name = 'estates_' + city + '.txt'
+s3.Bucket(s3_bucket_name).put_object(Key=object_name, Body=body, ContentType='text/plain')
 
 
 #f.close()
