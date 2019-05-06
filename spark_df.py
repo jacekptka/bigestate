@@ -1,5 +1,5 @@
 #job for EMR
-
+# export PYTHONIOENCODING=utf8
 
 import pyspark
 from pyspark.sql import SparkSession

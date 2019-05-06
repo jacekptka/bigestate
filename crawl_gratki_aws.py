@@ -35,15 +35,16 @@ def get_max_articles():
 def crawl_for_articles():
     get_max_pages()
     get_max_articles()
+    crawl_for_articles.body = ""
+    #for page in range(1, int(get_max_pages.max_pages)):
+    for page in range(1, 10):
 
-    for page in range(1, int(get_max_pages.max_pages)):
 
         url2parse_current = "https://gratka.pl/nieruchomosci/mieszkania/" + city + "/sprzedaz?page="+str(page)
         r = requests.get(url2parse_current)
         soup = BeautifulSoup(r.content, "html.parser")
 
         for article in range (0, get_max_articles.max_articles):
-
             teaser_params = soup.find_all('ul', class_='teaser__params')[article]
             teaser_price = 'Cena: ' + soup.find_all('p', class_='teaser__price')[article].contents[0].strip().replace(" ","")
             teaser_anchor = 'Tytuł: ' + soup.find_all('a', class_='teaser__anchor')[article].contents[0].strip().replace(",","")
@@ -98,16 +99,19 @@ def crawl_for_articles():
                 values.append(ention[1])
 
             estate = str(keys)+'\n'+str(values)
-            body = estate.replace("'","").replace("[","").replace("]","")
+            temp = estate.replace("'","").replace("[","").replace("]","")
 
-            #print(body)
+            crawl_for_articles.body += temp+'\n'
 
-            object_name = 'estates_'+city+'_'+str(page)+'_'+str(article)+'.json'
-            s3.Bucket(s3_bucket_name).put_object(Key=object_name, Body=body, ContentType='text/plain')
+
+
+
 
 
 crawl_for_articles()
 
+object_name = 'estates_' + city + '.txt'
+s3.Bucket(s3_bucket_name).put_object(Key=object_name, Body=crawl_for_articles.body, ContentType='text/plain')
 
 
 #f.close()
