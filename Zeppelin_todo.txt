@@ -1,0 +1,5 @@
+1. średnia dla krakowa
+2. średnia za metr na dzielnicę
+3. mediana za metr na dzielnicę
+4. ilość na dzielnicę
+5. procentowo pierwotny/wtórny

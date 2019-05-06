@@ -35,10 +35,11 @@ def get_max_articles():
 def crawl_for_articles():
     get_max_pages()
     get_max_articles()
-    crawl_for_articles.body = ""
-    #for page in range(1, int(get_max_pages.max_pages)):
-    for page in range(1, 10):
+    crawl_for_articles.estates = ""
+    crawl_for_articles.header = ""
 
+    #for page in range(1, int(get_max_pages.max_pages)):
+    for page in range(1, 2):
 
         url2parse_current = "https://gratka.pl/nieruchomosci/mieszkania/" + city + "/sprzedaz?page="+str(page)
         r = requests.get(url2parse_current)
@@ -98,20 +99,22 @@ def crawl_for_articles():
                 keys.append(ention[0])
                 values.append(ention[1])
 
-            estate = str(keys)+'\n'+str(values)
+            crawl_for_articles.header = str(keys).replace("'","").replace("[","").replace("]","")+'\n'
+            estate = str(values)
             temp = estate.replace("'","").replace("[","").replace("]","")
-
-            crawl_for_articles.body += temp+'\n'
-
-
+            #crawl_for_articles.body = header
+            crawl_for_articles.estates += temp+'\n'
 
 
 
 
 crawl_for_articles()
 
-object_name = 'estates_' + city + '.txt'
-s3.Bucket(s3_bucket_name).put_object(Key=object_name, Body=crawl_for_articles.body, ContentType='text/plain')
+body = crawl_for_articles.header + crawl_for_articles.estates
+
+print(body)
+#object_name = 'estates_' + city + '.txt'
+#s3.Bucket(s3_bucket_name).put_object(Key=object_name, Body=body, ContentType='text/plain')
 
 
 #f.close()

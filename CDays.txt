@@ -1,0 +1,20 @@
+ComD:
+
+Wprowadzenie:
+
+- Wstęp, cel
+
+- Technologie i architektura:
+	AWS (S3, Lambda, EMR[Spark, Zeppelin])
+	Python (webcrawling: bs4, requests; pyspark)
+	Tools: github, PyCharm, WLS Ubuntu, PowerShell,
+
+	No DevOps :(
+
+Hands-on:
+
+- S3
+- Lambda / PyCharm
+- EMR
+- spark-submit / zeppelin
+
