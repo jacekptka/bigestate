@@ -1,8 +1,8 @@
-1. średnia dla krakowa
-2. średnia za metr na dzielnicę
-3. mediana za metr na dzielnicę
+V 1. średnia dla krakowa
+V 2. średnia cena za metr na dzielnicę
+3. mediana ceny metra na dzielnicę
 4. ilość na dzielnicę
-5. procentowo pierwotny/wtórny
+V 5. procentowo pierwotny/wtórny
 
 https://www.mbejda.com/getting-started-with-apache-spark-and-zeppelin-on-aws-emr/
 
@@ -19,3 +19,30 @@ val df = sqlContext.read
 .option("delimiter",",")
 .load("s3n://jpi-bigestate/estates_krakow.txt")
 
+df.printSchema()
+
+val cleaned_districts = df.filter("district in (' Stare Miasto',' Grzegórzki',' Prądnik Czerwony',' Prądnik Biały',' Krowodrza',' Bronowice',' Zwierzyniec',' Dębniki',' Łagiewniki-Borek Fałęcki',' Swoszowice',' Podgórze Duchackie',' Bieżanów-Prokocim',' Podgórze',' Czyżyny',' Mistrzejowice',' Bieńczyce',' Wzgórza Krzesławickie',' Nowa Huta')")
+
+
+cleaned_districts.createOrReplaceTempView("fullTable_clean_districts")
+//df.createOrReplaceTempView("fullTable")
+
+
+cleaned_districts.count()
+
+%sql
+select count(1) as number_of_estates_in_krk from fullTable_clean_districts
+
+
+%sql
+select round(avg(price),2) as avg_price_for_krk from fullTable_clean_districts
+
+%sql
+select count(primary_market) as primary, (select count(primary_market) from fullTable_clean_districts where primary_market = " no") as secondary from fullTable_clean_districts where primary_market = " yes"
+
+%sql
+select count(*) as count, district from fullTable_clean_districts group by district order by count desc
+
+
+%sql
+select round(avg(price/area),2) as avg_per_meter_for_krk, district from fullTable_clean_districts group by district order by avg_per_meter_for_krk desc
